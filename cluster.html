@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sangli Schools - 10KM Distance Clusters</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        #map { height: 100vh; width: 100%; }
+        
+        .info-panel {
+            position: absolute; top: 15px; left: 50px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            max-width: 280px;
+        }
+        .cluster-legend {
+            font-size: 0.8rem; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="info-panel">
+    <h2 style="margin:0; font-size: 1.1rem;">School Clusters (10KM)</h2>
+    <p style="margin:5px 0; font-size: 0.85rem; color: #555;">Schools within close proximity are grouped. Click a cluster to expand.</p>
+    <div class="cluster-legend">
+        <span style="color: #2980b9;">●</span> Blue circles represent a 10KM radius from a cluster's approximate center.
+    </div>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+<script>
+    const map = L.map('map').setView([17.1, 74.8], 9);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    // 1. School Dataset
+    const schools = [
+        { "id": 1, "taluka": "जत", "school": "जिल्हा परिषद शाळा गुगवाड कन्नड", "latitude": 17.0658, "longitude": 75.3124 },
+        { "id": 2, "taluka": "जत", "school": "जिल्हा परिषद शाळा बालगांव कन्नड", "latitude": 17.0234, "longitude": 75.3512 },
+        { "id": 3, "taluka": "जत", "school": "जिल्हा परिषद शाळा कुकलावाडी", "latitude": 17.0815, "longitude": 75.1432 },
+        { "id": 4, "taluka": "जत", "school": "जिल्हा परिषद शाळा संघ मराठी", "latitude": 17.0421, "longitude": 75.2285 },
+        { "id": 5, "taluka": "जत", "school": "जिल्हा परिषद शाळा शेल्वडी", "latitude": 17.0092, "longitude": 75.3341 },
+        { "id": 6, "taluka": "जत", "school": "जिल्हा परिषद शाळा अंकले", "latitude": 17.1645, "longitude": 75.0412 },
+        { "id": 7, "taluka": "जत", "school": "जिल्हा परिषद शाळा कंठी", "latitude": 17.1523, "longitude": 75.2867 },
+        { "id": 8, "taluka": "जत", "school": "जिल्हा परिषद शाळा जिरग्याळ", "latitude": 17.1389, "longitude": 75.3854 },
+        { "id": 9, "taluka": "कवठेमहांकाळ", "school": "जिल्हा परिषद शाळा नागाज", "latitude": 17.0312, "longitude": 74.9654 },
+        { "id": 10, "taluka": "कवठेमहांकाळ", "school": "जिल्हा परिषद शाळा चोराची", "latitude": 17.0541, "longitude": 74.8823 },
+        { "id": 11, "taluka": "कवठेमहांकाळ", "school": "जिल्हा परिषद शाळा नरसिंहगाव", "latitude": 17.0187, "longitude": 74.9012 },
+        { "id": 12, "taluka": "मिरज", "school": "जिल्हा परिषद शाळा सावळी", "latitude": 16.9245, "longitude": 74.6312 },
+        { "id": 13, "taluka": "मिरज", "school": "जिल्हा परिषद शाळा बेळंकी - १", "latitude": 16.9212, "longitude": 74.8345 },
+        { "id": 14, "taluka": "मिरज", "school": "जिल्हा परिषद शाळा कर्नाळ - १", "latitude": 16.8923, "longitude": 74.6045 },
+        { "id": 15, "taluka": "मिरज", "school": "जिल्हा परिषद शाळा अंकली", "latitude": 16.8256, "longitude": 74.5712 },
+        { "id": 16, "taluka": "वाळवा", "school": "जिल्हा परिषद शाळा ताकारी स्टेशन", "latitude": 17.1145, "longitude": 74.3123 },
+        { "id": 17, "taluka": "वाळवा", "school": "जिल्हा परिषद शाळा गोटखिंडी - १", "latitude": 16.9587, "longitude": 74.4532 },
+        { "id": 18, "taluka": "वाळवा", "school": "जिल्हा परिषद शाळा भडकवे", "latitude": 17.0123, "longitude": 74.3567 },
+        { "id": 19, "taluka": "वाळवा", "school": "जिल्हा परिषद शाळा येडूर", "latitude": 17.0345, "longitude": 74.2812 },
+        { "id": 20, "taluka": "शिराळा", "school": "जिल्हा परिषद शाळा तडवळे", "latitude": 17.0212, "longitude": 74.1234 },
+        { "id": 21, "taluka": "शिराळा", "school": "जिल्हा परिषद शाळा कोकरुड १", "latitude": 17.1056, "longitude": 73.9612 },
+        { "id": 22, "taluka": "शिराळा", "school": "जिल्हा परिषद शाळा देववाडी", "latitude": 17.0534, "longitude": 74.1567 },
+        { "id": 23, "taluka": "पलुस", "school": "जिल्हा परिषद शाळा भिलवडी", "latitude": 17.0012, "longitude": 74.4589 },
+        { "id": 24, "taluka": "पलुस", "school": "जिल्हा परिषद शाळा सांडवाडी", "latitude": 17.0845, "longitude": 74.4312 },
+        { "id": 25, "taluka": "कडेगांव", "school": "जिल्हा परिषद शाळा खराजवटा", "latitude": 17.2567, "longitude": 74.3212 },
+        { "id": 26, "taluka": "कडेगांव", "school": "जिल्हा परिषद शाळा तडसर", "latitude": 17.2012, "longitude": 74.3567 },
+        { "id": 27, "taluka": "खानापूर", "school": "जिल्हा परिषद शाळा लेगरे", "latitude": 17.2145, "longitude": 74.7212 },
+        { "id": 28, "taluka": "खानापूर", "school": "जिल्हा परिषद शाळा पठणी", "latitude": 17.2312, "longitude": 74.7567 },
+        { "id": 29, "taluka": "खानापूर", "school": "जिल्हा परिषद शाळा खानापूर", "latitude": 17.2543, "longitude": 74.7123 },
+        { "id": 30, "taluka": "तासगांव", "school": "जिल्हा परिषद शाळा दहिवडी", "latitude": 17.0512, "longitude": 74.6134 },
+        { "id": 31, "taluka": "तासगांव", "school": "जिल्हा परिषद शाळा हातनूर", "latitude": 17.0867, "longitude": 74.5512 },
+        { "id": 32, "taluka": "तासगांव", "school": "जिल्हा परिषद शाळा अंजनी", "latitude": 17.1345, "longitude": 74.6412 },
+        { "id": 33, "taluka": "आटपाडी", "school": "जिल्हा परिषद शाळा तडवळे", "latitude": 17.3812, "longitude": 74.9456 },
+        { "id": 34, "taluka": "आटपाडी", "school": "जिल्हा परिषद शाळा बिभुतवाडी", "latitude": 17.4123, "longitude": 74.8812 },
+        { "id": 35, "taluka": "आटपाडी", "school": "जिल्हा परिषद शाळा पायाणाचावाडी", "latitude": 17.4345, "longitude": 74.9012 },
+        { "id": 36, "taluka": "आटपाडी", "school": "जिल्हा परिषद शाळा करगणी", "latitude": 17.4567, "longitude": 74.9512 }
+    ];
+
+    // 2. Initialize Marker Cluster Group
+    // maxClusterRadius: 80 pixels is a good approximation for ~10km at mid-zoom
+    const markers = L.markerClusterGroup({
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        maxClusterRadius: 80 
+    });
+
+    // 3. Add Schools and Radius Circles
+    schools.forEach(school => {
+        const marker = L.marker([school.latitude, school.longitude]);
+        marker.bindPopup(`<b>${school.school}</b><br>Taluka: ${school.taluka}`);
+        markers.addLayer(marker);
+
+        // Optional: Add a 10km visual circle for each school to see the overlap
+        L.circle([school.latitude, school.longitude], {
+            radius: 5000, // 5KM radius (10KM diameter)
+            color: '#3498db',
+            fillOpacity: 0.02,
+            weight: 1,
+            interactive: false
+        }).addTo(map);
+    });
+
+    map.addLayer(markers);
+
+    // 4. Fetch Sangli District Boundary
+    fetch("https://nominatim.openstreetmap.org/search?q=Sangli+district,+Maharashtra,+India&format=json&polygon_geojson=1")
+        .then(r => r.json())
+        .then(data => {
+            if(data.length > 0) {
+                L.geoJSON(data[0].geojson, {
+                    style: { color: "#333", weight: 2, fillOpacity: 0, dashArray: '5, 5' },
+                    interactive: false
+                }).addTo(map);
+            }
+        });
+
+</script>
+</body>
+</html>
