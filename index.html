@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sangli District Schools Map</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #map { height: 100vh; width: 100%; }
+        
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 1px solid #ddd;
+            max-width: 300px;
+        }
+
+        h2 { margin: 0 0 5px 0; color: #2c3e50; font-size: 1.2rem; }
+        p { margin: 0; color: #7f8c8d; font-size: 0.9rem; }
+        
+        /* Custom Popup Styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="info-panel">
+    <h2>Zilla Parishad Schools</h2>
+    <p><b>District:</b> Sangli, Maharashtra</p>
+    <p><b>Total Schools:</b> 36</p>
+    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+    <p style="font-size: 0.8rem;">Markers indicate school locations. The blue outline represents the district boundary.</p>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // 1. Initialize the map (Centered on Sangli)
+    const map = L.map('map').setView([17.1, 74.7], 9);
+
+    // 2. Add Base Map Tiles (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 3. Fetch Sangli District Boundary via Nominatim API
+    const sangliBoundaryUrl = "https://nominatim.openstreetmap.org/search?q=Sangli+district,+Maharashtra,+India&format=json&polygon_geojson=1";
+
+    fetch(sangliBoundaryUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                const boundary = data[0].geojson;
+                L.geoJSON(boundary, {
+                    style: {
+                        color: "#2980b9",
+                        weight: 4,
+                        opacity: 0.8,
+                        fillColor: "#3498db",
+                        fillOpacity: 0.05
+                    },
+                    interactive: false
+                }).addTo(map);
+            }
+        });
+
+    // 4. Complete School Dataset
+    const schools = [
+        { "id": 1, "taluka": "जत", "school": "जिल्हा परिषद शाळा गुगवाड कन्नड", "latitude": 17.0658, "longitude": 75.3124 },
+        { "id": 2, "taluka": "जत", "school": "जिल्हा परिषद शाळा बालगांव कन्नड", "latitude": 17.0234, "longitude": 75.3512 },
+        { "id": 3, "taluka": "जत", "school": "जिल्हा परिषद शाळा कुकलावाडी", "latitude": 17.0815, "longitude": 75.1432 },
+        { "id": 4, "taluka": "जत", "school": "जिल्हा परिषद शाळा संघ मराठी", "latitude": 17.0421, "longitude": 75.2285 },
+        { "id": 5, "taluka": "जत", "school": "जिल्हा परिषद शाळा शेल्वडी", "latitude": 17.0092, "longitude": 75.3341 },
+        { "id": 6, "taluka": "जत", "school": "जिल्हा परिषद शाळा अंकले", "latitude": 17.1645, "longitude": 75.0412 },
+        { "id": 7, "taluka": "जत", "school": "जिल्हा परिषद शाळा कंठी", "latitude": 17.1523, "longitude": 75.2867 },
+        { "id": 8, "taluka": "जत", "school": "जिल्हा परिषद शाळा जिरग्याळ", "latitude": 17.1389, "longitude": 75.3854 },
+        { "id": 9, "taluka": "कवठेमहांकाळ", "school": "जिल्हा परिषद शाळा नागाज", "latitude": 17.0312, "longitude": 74.9654 },
+        { "id": 10, "taluka": "कवठेमहांकाळ", "school": "जिल्हा परिषद शाळा चोराची", "latitude": 17.0541, "longitude": 74.8823 },
+        { "id": 11, "taluka": "कवठेमहांकाळ", "school": "जिल्हा परिषद शाळा नरसिंहगाव", "latitude": 17.0187, "longitude": 74.9012 },
+        { "id": 12, "taluka": "मिरज", "school": "जिल्हा परिषद शाळा सावळी", "latitude": 16.9245, "longitude": 74.6312 },
+        { "id": 13, "taluka": "मिरज", "school": "जिल्हा परिषद शाळा बेळंकी - १", "latitude": 16.9212, "longitude": 74.8345 },
+        { "id": 14, "taluka": "मिरज", "school": "जिल्हा परिषद शाळा कर्नाळ - १", "latitude": 16.8923, "longitude": 74.6045 },
+        { "id": 15, "taluka": "मिरज", "school": "जिल्हा परिषद शाळा अंकली", "latitude": 16.8256, "longitude": 74.5712 },
+        { "id": 16, "taluka": "वाळवा", "school": "जिल्हा परिषद शाळा ताकारी स्टेशन", "latitude": 17.1145, "longitude": 74.3123 },
+        { "id": 17, "taluka": "वाळवा", "school": "जिल्हा परिषद शाळा गोटखिंडी - १", "latitude": 16.9587, "longitude": 74.4532 },
+        { "id": 18, "taluka": "वाळवा", "school": "जिल्हा परिषद शाळा भडकवे", "latitude": 17.0123, "longitude": 74.3567 },
+        { "id": 19, "taluka": "वाळवा", "school": "जिल्हा परिषद शाळा येडूर", "latitude": 17.0345, "longitude": 74.2812 },
+        { "id": 20, "taluka": "शिराळा", "school": "जिल्हा परिषद शाळा तडवळे", "latitude": 17.0212, "longitude": 74.1234 },
+        { "id": 21, "taluka": "शिराळा", "school": "जिल्हा परिषद शाळा कोकरुड १", "latitude": 17.1056, "longitude": 73.9612 },
+        { "id": 22, "taluka": "शिराळा", "school": "जिल्हा परिषद शाळा देववाडी", "latitude": 17.0534, "longitude": 74.1567 },
+        { "id": 23, "taluka": "पलुस", "school": "जिल्हा परिषद शाळा भिलवडी", "latitude": 17.0012, "longitude": 74.4589 },
+        { "id": 24, "taluka": "पलुस", "school": "जिल्हा परिषद शाळा सांडवाडी", "latitude": 17.0845, "longitude": 74.4312 },
+        { "id": 25, "taluka": "कडेगांव", "school": "जिल्हा परिषद शाळा खराजवटा", "latitude": 17.2567, "longitude": 74.3212 },
+        { "id": 26, "taluka": "कडेगांव", "school": "जिल्हा परिषद शाळा तडसर", "latitude": 17.2012, "longitude": 74.3567 },
+        { "id": 27, "taluka": "खानापूर", "school": "जिल्हा परिषद शाळा लेगरे", "latitude": 17.2145, "longitude": 74.7212 },
+        { "id": 28, "taluka": "खानापूर", "school": "जिल्हा परिषद शाळा पठणी", "latitude": 17.2312, "longitude": 74.7567 },
+        { "id": 29, "taluka": "खानापूर", "school": "जिल्हा परिषद शाळा खानापूर", "latitude": 17.2543, "longitude": 74.7123 },
+        { "id": 30, "taluka": "तासगांव", "school": "जिल्हा परिषद शाळा दहिवडी", "latitude": 17.0512, "longitude": 74.6134 },
+        { "id": 31, "taluka": "तासगांव", "school": "जिल्हा परिषद शाळा हातनूर", "latitude": 17.0867, "longitude": 74.5512 },
+        { "id": 32, "taluka": "तासगांव", "school": "जिल्हा परिषद शाळा अंजनी", "latitude": 17.1345, "longitude": 74.6412 },
+        { "id": 33, "taluka": "आटपाडी", "school": "जिल्हा परिषद शाळा तडवळे", "latitude": 17.3812, "longitude": 74.9456 },
+        { "id": 34, "taluka": "आटपाडी", "school": "जिल्हा परिषद शाळा बिभुतवाडी", "latitude": 17.4123, "longitude": 74.8812 },
+        { "id": 35, "taluka": "आटपाडी", "school": "जिल्हा परिषद शाळा पायाणाचावाडी", "latitude": 17.4345, "longitude": 74.9012 },
+        { "id": 36, "taluka": "आटपाडी", "school": "जिल्हा परिषद शाळा करगणी", "latitude": 17.4567, "longitude": 74.9512 }
+    ];
+
+    // 5. Add School Markers to Map
+    schools.forEach(school => {
+        const marker = L.marker([school.latitude, school.longitude]).addTo(map);
+        
+        marker.bindPopup(`
+            <div style="min-width: 150px;">
+                <h3 style="margin: 0 0 5px 0; color: #e67e22; font-size: 1rem;">${school.school}</h3>
+                <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 2px 0; color: #7f8c8d;"><b>Taluka:</b></td>
+                        <td style="padding: 2px 0;">${school.taluka}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #7f8c8d;"><b>District:</b></td>
+                        <td style="padding: 2px 0;">Sangli</td>
+                    </tr>
+                </table>
+            </div>
+        `);
+    });
+
+</script>
+
+</body>
+</html>
