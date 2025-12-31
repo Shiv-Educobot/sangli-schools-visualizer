@@ -27,10 +27,10 @@
 <body>
 
 <div class="info-panel">
-    <h2 style="margin:0; font-size: 1.1rem;">School Clusters (10KM)</h2>
+    <h2 style="margin:0; font-size: 1.1rem;">School Clusters (5KM)</h2>
     <p style="margin:5px 0; font-size: 0.85rem; color: #555;">Schools within close proximity are grouped. Click a cluster to expand.</p>
     <div class="cluster-legend">
-        <span style="color: #2980b9;">●</span> Blue circles represent a 10KM radius from a cluster's approximate center.
+        <span style="color: #2980b9;">●</span> Blue circles represent a 5KM radius from a cluster's approximate center.
     </div>
 </div>
 
@@ -91,7 +91,7 @@
     const markers = L.markerClusterGroup({
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
-        maxClusterRadius: 80 
+        maxClusterRadius: 40 
     });
 
     // 3. Add Schools and Radius Circles
